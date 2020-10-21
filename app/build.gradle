@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+
+apply from: 'walle.gradle'
+
+apply from: 'tinker-support.gradle'
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        applicationId "me.zhiyao.tinkertest"
+        minSdkVersion 16
+        targetSdkVersion 30
+        versionCode 100
+        versionName "1.0.0"
+
+        multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    dexOptions {
+        jumboMode = true
+    }
+
+    signingConfigs {
+        release {
+            keyAlias 'key0'
+            keyPassword '123456'
+            storeFile file('../TinkerTest.jks')
+            storePassword '123456'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    testImplementation 'junit:junit:4.13.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+
+    // Multidex
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    // 美团 Walle 多渠道打包
+    implementation 'com.meituan.android.walle:library:1.1.7'
+
+    // 腾讯 Bugly
+    implementation 'com.tencent.bugly:crashreport_upgrade:1.4.5'
+    implementation 'com.tencent.tinker:tinker-android-lib:1.9.14.9'
+}
