@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TinkerTest</string>
+    <string name="main_start_patch_activity">Start PatchActivity</string>
 </resources>
