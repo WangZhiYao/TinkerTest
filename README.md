@@ -1,5 +1,5 @@
 # Walle + Tinker + Bugly 多渠道热更新方案
-
+> 原文地址：https://339.im/articles/walle-tinker-bugly-hotfix/
 ### 1.Walle
 
 #### 1.1 接入
@@ -465,9 +465,9 @@ gralew buildTinkerPatchRelease
 
 ### 3.踩过的坑
 
-#### 3.1 gradle build tools 与 gradle 的版本不能太高
+#### 3.1 ~~gradle build tools 与 gradle 的版本不能太高~~
 
-Bugly 的 Tinker Support 目前还不兼容 build tool 3.2.0 以上的版本，gradle 版本 4.6 以上也不兼容，否则会报各种错误
+~~Bugly 的 Tinker Support 目前还不兼容 build tool 3.2.0 以上的版本，gradle 版本 4.6 以上也不兼容，否则会报各种错误~~
 
 ```groovy
 classpath 'com.android.tools.build:gradle:3.2.0'
@@ -475,15 +475,15 @@ classpath 'com.android.tools.build:gradle:3.2.0'
 distributionUrl=https\://services.gradle.org/distributions/gradle-4.6-all.zip
 ```
 
-#### 3.2 Java 8 语法
+#### 3.2 ~~Java 8 语法~~
 
-同时如果项目的编译语法设置为 **Java 8** 的话，会抛出如下错误：
+~~同时如果项目的编译语法设置为 **Java 8** 的话，会抛出如下错误：~~
 
 ```
 Java 8 language support, as requested by 'android.enableD8.desugaring= true' in your gradle.properties file, is not supported when 'android.useDexArchive= false'.
 ```
 
-需要在 `Project Properties` 级的 `gradle.properties` 中加入：
+~~需要在 `Project Properties` 级的 `gradle.properties` 中加入：~~
 
 ```groovy
 android.enableD8.desugaring=false
@@ -495,3 +495,33 @@ android.useDexArchive= true
 [Github](https://github.com/WangZhiYao/TinkerTest)
 
 基准包在 **base**  分支，修复包在 **patch** 分支
+
+### 更新
+2020.11.07 ：
+
+根据 tinker 官方 [github issue](https://github.com/BuglyDevTeam/Bugly-Android-Demo/issues/247#issuecomment-656568646) 中 其他人的配置：
+```groovy
+classpath 'com.android.tools.build:gradle:3.4.1'
+
+distributionUrl=https\://services.gradle.org/distributions/gradle-5.1.1-all.zip
+
+implementation 'com.tencent.bugly:crashreport_upgrade:1.4.5' 
+implementation 'com.tencent.tinker:tinker-android-lib:1.9.14.5' 
+```
+
+这样配置解决了 build gradle tool 版本过低导致 Java 8 语法的问题
+
+app minSdkVersion 低于19 ，`multiDexEnabled  = true` 的时候，如果报出 xxxxloader.class 之类的不在 mianDex 时，需要手动去设置 mainDexFile，将之前报的 class 手动分配到 mainDex 中
+
+app minSdkVersion >= 21 时，打补丁包同样会报错，因为 google 在 api >= 21 之后 mainDexFile 已经不生效了，这时需要在 `tinker-support.gradle` 中加入
+
+```groovy
+tinkerSupport {
+    ...
+    // Android API 21 以上 无法自定义mainDexList，导致loader分到次dex中Tinker报错无法生成补丁，忽略即可
+    // https://github.com/Tencent/tinker/issues/1084
+    ignoreWarning = true
+    ...
+}
+```
+
